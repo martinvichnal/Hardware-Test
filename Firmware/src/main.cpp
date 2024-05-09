@@ -1,20 +1,14 @@
 #include <Arduino.h>
 #include <stdbool.h>
 #include "AntiDelay.h"
-#include "Sonic.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 #define TRIGGER_PIN 5
 #define ECHO_PIN 4
-#define SOUND_OF_SPEED 0.0343f // [cm / microsecond]
-
 #define LED1 8
 #define LED2 7
 #define LED3 6
-const float ledUpperLimit = 15.00f;	 // [cm]
-const float ledBottomLimit = 10.00f; // [cm]
-
 #define PHOTOCELL A0
 
 typedef struct
@@ -26,20 +20,51 @@ typedef struct
 	uint8_t end;		  // 1 byte - const 0xAA
 } Message;
 
+class Sonic
+{
+private:
+	int _trigPin;
+	int _echoPin;
+
+public:
+	Sonic(int trigPin, int echoPin)
+	{
+		_trigPin = trigPin;
+		_echoPin = echoPin;
+		pinMode(_trigPin, OUTPUT);
+		pinMode(_echoPin, INPUT);
+	}
+
+	float getDistance()
+	{
+		float res = 0;
+		long time = 0;
+
+		digitalWrite(_trigPin, LOW);
+		delayMicroseconds(2);
+		digitalWrite(_trigPin, HIGH);
+		delayMicroseconds(10);
+		digitalWrite(_trigPin, LOW);
+		time = pulseIn(_echoPin, HIGH);
+		res = (time / 2) * 0.0343f; // [cm] || 0.0343f [cm / microsecond]
+		return res;
+	}
+};
+
 bool sendUARTMessage(Message *msg);
 void convertToMessage(float fSonicData, int iPhotoData, Message *buffer);
-void decodeMessage(Message *buffer, float *fSonicData, int *iPhotoData);
+bool decodeMessage(Message *buffer, float *fSonicData, int *iPhotoData);
 uint8_t calculateCheckSum(Message *msg);
-
-float getDistance();
 void handleLEDs();
 
-// Sonic sonicSensor(trigPin, echoPin);
+Sonic sonicSensor(TRIGGER_PIN, ECHO_PIN);
 AntiDelay sensorReadings(500);
 Message buffer;
 
 int photoCellValue = 0;
 float sonicDistance = 0;
+const float ledUpperLimit = 15.00f;	 // [cm]
+const float ledBottomLimit = 10.00f; // [cm]
 
 void setup()
 {
@@ -47,8 +72,6 @@ void setup()
 	pinMode(LED2, OUTPUT);
 	pinMode(LED3, OUTPUT);
 	pinMode(PHOTOCELL, INPUT);
-	pinMode(TRIGGER_PIN, OUTPUT);
-	pinMode(ECHO_PIN, INPUT);
 
 	Serial.begin(9600);
 
@@ -60,7 +83,7 @@ void loop()
 	if (sensorReadings)
 	{
 		photoCellValue = analogRead(PHOTOCELL);
-		sonicDistance = getDistance();
+		sonicDistance = sonicSensor.getDistance();
 		convertToMessage(sonicDistance, photoCellValue, &buffer);
 #if DEBUG
 		Serial.print("Photo cell value: ");
@@ -77,7 +100,6 @@ void loop()
 		}
 		Serial.println();
 #endif
-
 		sendUARTMessage(&buffer);
 	}
 	handleLEDs();
@@ -98,28 +120,28 @@ bool sendUARTMessage(Message *msg)
 
 void convertToMessage(float fSonicData, int iPhotoData, Message *buffer)
 {
-	uint8_t *ptr = (uint8_t *)buffer;
-	*ptr = 0x55;
-	ptr++;
-	*(float *)ptr = fSonicData;
-	// ptr += sizeof(float);
-	ptr += 4;
-	*(int *)ptr = iPhotoData;
-	// ptr += sizeof(int);
-	ptr += 4;
-	*ptr = calculateCheckSum(buffer);
-	ptr++;
-	*ptr = 0xAA;
+	buffer->start = 0x55;
+	*(float *)buffer->sonicData = fSonicData;
+	*(int *)buffer->photoData = iPhotoData;
+	buffer->cs = calculateCheckSum(buffer);
+	buffer->end = 0xAA;
 }
 
-void decodeMessage(Message *buffer, float *fSonicData, int *iPhotoData)
+bool decodeMessage(Message *buffer, float *fSonicData, int *iPhotoData)
 {
-	uint8_t *ptr = (uint8_t *)buffer;
-	ptr++;
-	*fSonicData = *(float *)ptr;
-	ptr += 4;
-	*iPhotoData = *(int *)ptr;
-	ptr += 2;
+	*fSonicData = *(float *)buffer->sonicData;
+	*iPhotoData = *(int *)buffer->photoData;
+
+	// Error checking on incomming buffer
+	uint8_t checkSum = calculateCheckSum(buffer);
+	if (checkSum != buffer->cs)
+	{
+#if DEBUG
+		Serial.println("Check sum error on buffer!");
+#endif
+		return 1;
+	}
+	return 0;
 }
 
 uint8_t calculateCheckSum(Message *msg)
@@ -127,7 +149,7 @@ uint8_t calculateCheckSum(Message *msg)
 	uint8_t checkSum = 0;
 	uint8_t res = 0;
 	uint8_t *ptr = (uint8_t *)msg;
-	for (int i = 0; i < (sizeof(Message) - 2); i++)
+	for (int i = 0; i < (sizeof(Message) - (2 * sizeof(uint8_t))); i++)
 	{
 		checkSum ^= *ptr;
 		ptr++;
@@ -162,19 +184,4 @@ void handleLEDs()
 		digitalWrite(LED2, LOW);
 		digitalWrite(LED3, LOW);
 	}
-}
-
-float getDistance()
-{
-	float res = 0;
-	long time = 0;
-
-	digitalWrite(TRIGGER_PIN, LOW);
-	delayMicroseconds(2);
-	digitalWrite(TRIGGER_PIN, HIGH);
-	delayMicroseconds(10);
-	digitalWrite(TRIGGER_PIN, LOW);
-	time = pulseIn(ECHO_PIN, HIGH);
-	res = (time / 2) * SOUND_OF_SPEED;
-	return res;
 }
