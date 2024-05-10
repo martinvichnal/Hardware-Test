@@ -149,6 +149,7 @@ Ezek segítségével a nyers adatokat át tudom konvertálni a Message struct bu
 ## Könyvtárak
 
 [johnrickman/LiquidCrystal_I2C](https://github.com/johnrickman/LiquidCrystal_I2C/tree/master)
+
 [martinvichnal/AntiDelay](https://github.com/martinvichnal/AntiDelay)
 
 # Program
