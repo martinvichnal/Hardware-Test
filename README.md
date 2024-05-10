@@ -13,9 +13,11 @@
     -   [Fényérzékelő](#fényérzékelő)
     -   [Ultrahangos érzékelő](#ultrahangos-érzékelő)
         -   [Class használata](#class-használata)
+    -   [1602 LCD](#1602-lcd)
     -   [Kommunikáció](#kommunikáció)
         -   [I2C](#i2c-1)
         -   [UART](#uart)
+    -   [Könyvtárak](#könyvtárak)
 -   [Program](#program)
 
 # Kapcsolási rajz
@@ -59,20 +61,18 @@ A2-A0 ig ellátott jelölések fizikai réz lapokat jelölnek amikkel be lehet �
 
 ## Működése
 
-A program 500ms-ként lekérdezi az összes szenzorról a kívánt adatokat majd feldolgozza az adatokat és elküldi az üzenetet az UART-on keresztűl. A program folyamatosan frissíti a LED-ek állapotát amit a `handleLEDs()` függvény kezel. Ebben a függvényben szimplán komparálja a távolságot az előre definiált konstans változókkal `ledUpperLimit`, `ledBottomLimit`.
+A program 500ms-ként lekérdezi az összes szenzorról a kívánt adatokat majd feldolgozza az adatokat és elküldi az üzenetet az UART-on keresztűl. Eközben az LCD-re a kiírás is megtörténik a `writeLCD()` függvény segítségével.
+
+A program folyamatosan frissíti a LED-ek állapotát amit a `handleLEDs()` függvény kezel. Ebben a függvényben szimplán komparálja a távolságot az előre definiált konstans változókkal `ledUpperLimit`, `ledBottomLimit`.
 A programban az 500ms-kénti lekérdezést úgy váltottam valóra, hogy a saját könyvtáramat hozzáadtam a programhoz. Ez akönyvtár az `AntiDelay`, amivel _NON-BLOCKING_ delay-eket hozhatunk létre.
 
 ```C++
 AntiDelay sensorReadings(500);
 ```
 
-Ezt az értéket a késöbbiekben könnyedén megváltoztathatjuk a
+Ezt az értéket a késöbbiekben könnyedén megváltoztathatjuk a `void setInterval(unsigned long interval)` belső függvény segítségével.
 
-```C++
-void AntiDelay::setInterval(unsigned long interval)
-```
-
-belső függvény segítségével.
+A program futtatása során lehetőség van belső debuggerelésre ami szimplán kiírja a soros portra az értékeket amiket a szenzorról olvas le. Ezt a funkciót `#define DEBUG 1/0`-val lehet ki és bekapcsolni. Az üzenetek kiküldése ugyan azon a porton keresztül történik meg amelyiken a Message adatcsomagot kiküldjük ezért érdemes kikapcsolva hagyni.
 
 ### Változók
 
@@ -98,11 +98,17 @@ Távolság lekérése:
 float sonicDistance = sonicSensor.getDistance();
 ```
 
+## 1602 LCD
+
+Az LCD vezérléséhez 2 függvényt hoztam létre. Az `void initLCD()` csupán inicializálja az I2C kommunikációt és beállítja az LCD alapbeállításait.
+
+Adatok kiírása a void `writeLCD()` függvény segítségével történik meg.
+
 ## Kommunikáció
 
 ### I2C
 
-Az I2C kommunikációs protokollt a két 1604-es LCD kijelző futtatására használom.
+Az I2C kommunikációs protokollt a két 1604-es LCD kijelző futtatására használom. A kommunikáció leegyszerűsítése kedvéért LiquidCrystal_I2C könyvtárat használtam.
 
 ### UART
 
@@ -123,11 +129,11 @@ typedef struct
 
 Az üzenetkeretet a programokon belül egy struct-ban tárolom, tartalma a következő:
 
--   start: 1 bájt előre definiált konstans 0x55 érték ezzel jelezve a csomag kezdetét
--   sonicData: 4 bájtos adat amiben az Ultrahangos érzékelő távolságát tartalmazza ami FLOAT típusú
--   photoData: 4 bájtos adat amiben a Fényérzékelő ADC értékét tartalmazza ami INT típusú (sok rendszerben változó az int típus nagysága ezért a biztonság kedvéért 4 bájt)
--   cs: 1 bájtnyi Check Sum ami a kód integritás vizsgálására használatos.
--   end: 1 bájt előre definiált konstans 0xAA érték ezzel jelezve a csomag végét
+-   `start`: 1 bájt előre definiált konstans 0x55 érték ezzel jelezve a csomag kezdetét
+-   `sonicData`: 4 bájtos adat amiben az Ultrahangos érzékelő távolságát tartalmazza ami FLOAT típusú
+-   `photoData`: 4 bájtos adat amiben a Fényérzékelő ADC értékét tartalmazza ami INT típusú (sok rendszerben változó az int típus nagysága ezért a biztonság kedvéért 4 bájt)
+-   `cs`: 1 bájtnyi Check Sum ami a kód integritás vizsgálására használatos.
+-   `end`: 1 bájt előre definiált konstans 0xAA érték ezzel jelezve a csomag végét
 
 Az UART kommunikációhoz fűződve 4 belső függvényt csináltam.
 
@@ -139,5 +145,10 @@ uint8_t calculateCheckSum(Message *msg);
 ```
 
 Ezek segítségével a nyers adatokat át tudom konvertálni a Message struct bufferba és fordítva. A sendUARTMessage függvény segítségével lehet kiküldeni az adattömböt az UARTra. Egy biztonsági réteget is beleiktattam az adatcsomagba ami egy egyszerű check sum funkció, ezzel ki lehet kerülni az esetlegesen megroncsolt adatok feldolgozását.
+
+## Könyvtárak
+
+[johnrickman/LiquidCrystal_I2C](https://github.com/johnrickman/LiquidCrystal_I2C/tree/master)
+[martinvichnal/AntiDelay](https://github.com/martinvichnal/AntiDelay)
 
 # Program

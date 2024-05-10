@@ -1,8 +1,9 @@
 #include <Arduino.h>
 #include <stdbool.h>
+#include <LiquidCrystal_I2C.h>
 #include "AntiDelay.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 #define TRIGGER_PIN 5
 #define ECHO_PIN 4
@@ -11,6 +12,12 @@
 #define LED3 6
 #define PHOTOCELL A0
 
+#define LCD_COLS 16
+#define LCD_ROWS 4
+#define LCD_1_ADDR 0x70
+#define LCD_2_ADDR 0x7E
+
+// Message structure
 typedef struct
 {
 	uint8_t start;		  // 1 byte - const 0x55
@@ -20,6 +27,7 @@ typedef struct
 	uint8_t end;		  // 1 byte - const 0xAA
 } Message;
 
+// Sonic sensor class
 class Sonic
 {
 private:
@@ -51,21 +59,32 @@ public:
 	}
 };
 
+// Fucntions declarations
 bool sendUARTMessage(Message *msg);
 void convertToMessage(float fSonicData, int iPhotoData, Message *buffer);
 bool decodeMessage(Message *buffer, float *fSonicData, int *iPhotoData);
 uint8_t calculateCheckSum(Message *msg);
+
 void handleLEDs();
 
+void initLCD();
+void writeLCD();
+
+// Class declarations
+LiquidCrystal_I2C lcd1(LCD_1_ADDR, LCD_COLS, LCD_ROWS);
+LiquidCrystal_I2C lcd2(LCD_2_ADDR, LCD_COLS, LCD_ROWS);
 Sonic sonicSensor(TRIGGER_PIN, ECHO_PIN);
 AntiDelay sensorReadings(500);
 Message buffer;
 
+// Global variable declarations
 int photoCellValue = 0;
 float sonicDistance = 0;
 const float ledUpperLimit = 15.00f;	 // [cm]
 const float ledBottomLimit = 10.00f; // [cm]
 
+///////////////////////////////////////////////////////////////////////
+// Setup
 void setup()
 {
 	pinMode(LED1, OUTPUT);
@@ -78,6 +97,8 @@ void setup()
 	delay(500);
 }
 
+///////////////////////////////////////////////////////////////////////
+// Loop
 void loop()
 {
 	if (sensorReadings)
@@ -85,6 +106,8 @@ void loop()
 		photoCellValue = analogRead(PHOTOCELL);
 		sonicDistance = sonicSensor.getDistance();
 		convertToMessage(sonicDistance, photoCellValue, &buffer);
+		sendUARTMessage(&buffer);
+		writeLCD();
 #if DEBUG
 		Serial.print("Photo cell value: ");
 		Serial.println(photoCellValue);
@@ -100,11 +123,12 @@ void loop()
 		}
 		Serial.println();
 #endif
-		sendUARTMessage(&buffer);
 	}
 	handleLEDs();
 }
 
+///////////////////////////////////////////////////////////////////////
+// Functions
 bool sendUARTMessage(Message *msg)
 {
 	uint8_t *msgPtr = (uint8_t *)msg;
@@ -184,4 +208,32 @@ void handleLEDs()
 		digitalWrite(LED2, LOW);
 		digitalWrite(LED3, LOW);
 	}
+}
+
+void initLCD()
+{
+	lcd1.init();		  // Initialize the LCD
+	lcd1.backlight();	  // Turn on the backlight
+	lcd1.clear();		  // Clear the screen
+	lcd1.setCursor(0, 0); // Set cursor to the begining
+
+	lcd2.init();		  // Initialize the LCD
+	lcd2.backlight();	  // Turn on the backlight
+	lcd2.clear();		  // Clear the screen
+	lcd2.setCursor(0, 0); // Set cursor to the begining
+}
+
+void writeLCD()
+{
+	lcd1.clear();
+	lcd1.setCursor(0, 0);
+	lcd1.print("Photo cell: ");
+	lcd1.setCursor(0, 1);
+	lcd1.print(photoCellValue);
+
+	lcd1.clear();
+	lcd2.setCursor(0, 0);
+	lcd2.print("Sonic distance: ");
+	lcd2.setCursor(0, 1);
+	lcd2.print(sonicDistance);
 }
