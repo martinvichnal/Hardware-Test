@@ -18,12 +18,12 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SerialPort.cpp">
+    <ClCompile Include="SerialHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SerialPort.hpp">
+    <ClInclude Include="SerialHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,9 +1,11 @@
 #include <iostream>
-#include "SerialPort.hpp"
+#include "SerialHandler.h"
 #include <stdio.h>
 #include <string.h>
 using namespace std;
 
+
+// Message structure
 typedef struct
 {
 	uint8_t start;		  // 1 byte - const 0x55
@@ -13,56 +15,84 @@ typedef struct
 	uint8_t end;		  // 1 byte - const 0xAA
 } Message;
 
+// Function prototypes
 void handleIncommingData(void);
 void convertToMessage(float fSonicData, int iPhotoData, Message* buffer);
 void decodeMessage(Message* buffer, float* fSonicData, int* iPhotoData);
 bool parseMessage(const char* input, Message* buffer);
 uint8_t calculateCheckSum(Message* msg);
 
-SerialPort* arduino;
+//Class declarations
+//SerialPort* arduino;
 Message buffer;
 
-#define MAX_DATA_LENGTH 11
+
+// Global variables
+#define DATA_FRAME_SIZE 11
 
 const char* portName = "\\\\.\\COM15";
-char incomingData[MAX_DATA_LENGTH];
+char incomingData[DATA_FRAME_SIZE];
 float fSonicData = 0.0;
 int iPhotoData = 0;
 
+
+/*
+						 /$$
+						|__/
+ /$$$$$$/$$$$   /$$$$$$  /$$ /$$$$$$$
+| $$_  $$_  $$ |____  $$| $$| $$__  $$
+| $$ \ $$ \ $$  /$$$$$$$| $$| $$  \ $$
+| $$ | $$ | $$ /$$__  $$| $$| $$  | $$
+| $$ | $$ | $$|  $$$$$$$| $$| $$  | $$
+|__/ |__/ |__/ \_______/|__/|__/  |__/
+*/
 int main()
 {
-	arduino = new SerialPort(portName);
+	SerialHandler port(portName);
+	
 
-	while (1)
-	{
-		// ui - searching
-		std::cout << "Searching in progress";
-		// wait connection
-		while (!arduino->isConnected())
-		{
-			Sleep(100);
-			std::cout << ".";
-			arduino = new SerialPort(portName);
-		}
+	//arduino = new SerialPort(portName);
 
-		// Checking if arduino is connected or not
-		if (arduino->isConnected())
-		{
-			std::cout << std::endl
-				<< "Connection established at port " << portName << std::endl;
-		}
+	//while (1)
+	//{
+	//	// ui - searching
+	//	std::cout << "Searching in progress";
+	//	// wait connection
+	//	while (!arduino->isConnected())
+	//	{
+	//		Sleep(100);
+	//		std::cout << ".";
+	//		//arduino = new SerialPort(portName);
+	//	}
 
-		while (arduino->isConnected())
-		{
-			handleIncommingData();
-		}
-	}
+	//	// Checking if arduino is connected or not
+	//	if (arduino->isConnected())
+	//	{
+	//		std::cout << std::endl
+	//			<< "Connection established at port " << portName << std::endl;
+	//	}
+
+	//	while (arduino->isConnected())
+	//	{
+	//		handleIncommingData();
+	//	}
+	//}
 }
 
+/*
+  /$$$$$$                                 /$$     /$$
+ /$$__  $$                               | $$    |__/
+| $$  \__//$$   /$$ /$$$$$$$   /$$$$$$$ /$$$$$$   /$$  /$$$$$$  /$$$$$$$   /$$$$$$$
+| $$$$   | $$  | $$| $$__  $$ /$$_____/|_  $$_/  | $$ /$$__  $$| $$__  $$ /$$_____/
+| $$_/   | $$  | $$| $$  \ $$| $$        | $$    | $$| $$  \ $$| $$  \ $$|  $$$$$$
+| $$     | $$  | $$| $$  | $$| $$        | $$ /$$| $$| $$  | $$| $$  | $$ \____  $$
+| $$     |  $$$$$$/| $$  | $$|  $$$$$$$  |  $$$$/| $$|  $$$$$$/| $$  | $$ /$$$$$$$/
+|__/      \______/ |__/  |__/ \_______/   \___/  |__/ \______/ |__/  |__/|_______/
+*/
 void handleIncommingData(void)
 {
-	int readResult = arduino->readSerialPort(incomingData, MAX_DATA_LENGTH);
-	bool readIsSuccessfull = parseMessage(incomingData, &buffer);
+	//int readResult = arduino->readSerialPort(incomingData, MAX_DATA_LENGTH);
+	/*bool readIsSuccessfull = parseMessage(incomingData, &buffer);
 	if (readIsSuccessfull == 0)
 	{
 		for (int i = 0; i < sizeof(Message); i++)
@@ -75,9 +105,9 @@ void handleIncommingData(void)
 		std::cout << "Photo data: " << iPhotoData << std::endl;
 	}
 
-	Sleep(10);
+	Sleep(10);*/
 }
-
+//==================================================================================================
 /**
  * @brief Convert data to message
  *
@@ -94,6 +124,7 @@ void convertToMessage(float fSonicData, int iPhotoData, Message* buffer)
 	buffer->end = 0xAA;
 }
 
+//==================================================================================================
 /**
  * @brief Decode message into sonic and photo data address
  *
@@ -107,6 +138,7 @@ void decodeMessage(Message* buffer, float* fSonicData, int* iPhotoData)
 	*iPhotoData = *(int*)buffer->photoData;
 }
 
+//==================================================================================================
 /**
  * @brief Parse message
  *
@@ -137,6 +169,7 @@ bool parseMessage(const char* input, Message* buffer)
 	return 1;
 }
 
+//==================================================================================================
 /**
  * @brief Calculate check sum
  *

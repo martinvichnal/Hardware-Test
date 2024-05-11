@@ -130,10 +130,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="SerialPort.cpp" />
+    <ClCompile Include="SerialHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SerialPort.hpp" />
+    <ClInclude Include="SerialHandler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
