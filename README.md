@@ -1,8 +1,5 @@
-# laughing-doodle
-
 # Table of Content
 
--   [laughing-doodle](#laughing-doodle)
 -   [Table of Content](#table-of-content)
 -   [Kapcsolási rajz](#kapcsolási-rajz)
     -   [GPIO](#gpio)
@@ -61,6 +58,8 @@ J5: H H H | 0x7F 0x7E
 ```
 
 A2-A0 ig ellátott jelölések fizikai réz lapokat jelölnek amikkel be lehet állítani, hogy az adott IC-nek milyen fizikai I2C címe legyen. Én esetemben kettőt válaszottam, ahol mind a 3 pad nincs összekötve és ahol mind a 3 pad össze van kötve.
+
+![Address Table](/Docs/PCF8574A%20I2C%20Address%20Reference%20table.png)
 
 # Firmware
 
@@ -144,6 +143,8 @@ Az üzenetkeretet a programokon belül egy struct-ban tárolom, tartalma a köve
 -   `cs`: 1 bájtnyi Check Sum ami a kód integritás vizsgálására használatos.
 -   `end`: 1 bájt előre definiált konstans 0xAA érték ezzel jelezve a csomag végét
 
+![UART Logic Analysator](/Docs/UART%20data%20transfer.png)
+
 Az UART kommunikációhoz fűződve 4 belső függvényt csináltam.
 
 ```C++
@@ -182,6 +183,10 @@ plt.show()
 
 Sajnos ismeretlen okok miatt egyszerre a kettő érték kirajzolása nem megvalósítható, mivel a program nagyon belassul ilyenkor, ezért csak az egyiket lehet futtatni, a másikat ki kell kommentezni.
 
+![Fényszenzor plot](/Docs/Fényszenzor%20plot.png)
+
+![Ultrahang plot](/Docs/Ultrahang%20plot.png)
+
 ### Könyvtárak
 
 Az alaklamazásban két könyvtárat használtam. Az UART kommunikációért felelős: `pip install pyserial` és az értékek kirajzolásáért: `pip install matplotlib`
@@ -192,6 +197,8 @@ A C++-os megvalósításban segítségűl `manshmandal` SerialPort nevű könyvt
 
 A kódban csak akkor történik `bufferbe` adatok írása amikor a start bit (0x55) megérkezik, valamint hiba esetén (azaz a check sumok nem egyeznek meg) a `parseMessage` funkció 1-et küld vissza.
 
+![Kiíratás terminálra](/Docs/Kiíratás%20terminálra.png)
+
 ### Könyvtárak
 
 [manashmandal/SerialPort](https://github.com/manashmandal/SerialPort/tree/master)
@@ -199,3 +206,5 @@ A kódban csak akkor történik `bufferbe` adatok írása amikor a start bit (0x
 # Gyakorlati megvalósítás
 
 A gyakorlatban is megépítettem a rendszert, ugyan azokkal a szenzor elemekkel, amik a feltételek között is szerepeltek. A rendszer minden elemét teszteltem, kivéve az LCD kijelzőt, mivel erre sajnos nem volt megfelelő elemem.
+
+![Gyakorlati megvalósítás](/Docs/Gyakorlati%20megvalósítás.jpg)
