@@ -1,0 +1,69 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Projects\\laughing-doodle\\Program cpp\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{9EF2252F-2AAC-4836-A67E-876615229720}|Program.vcxproj|D:\\Projects\\laughing-doodle\\Program cpp\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9EF2252F-2AAC-4836-A67E-876615229720}|Program.vcxproj|solutionrelative:main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9EF2252F-2AAC-4836-A67E-876615229720}|Program.vcxproj|D:\\Projects\\laughing-doodle\\Program cpp\\SerialPort.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9EF2252F-2AAC-4836-A67E-876615229720}|Program.vcxproj|solutionrelative:SerialPort.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9EF2252F-2AAC-4836-A67E-876615229720}|Program.vcxproj|D:\\Projects\\laughing-doodle\\Program cpp\\SerialPort.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9EF2252F-2AAC-4836-A67E-876615229720}|Program.vcxproj|solutionrelative:SerialPort.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "SerialPort.hpp",
+              "DocumentMoniker": "D:\\Projects\\laughing-doodle\\Program cpp\\SerialPort.hpp",
+              "RelativeDocumentMoniker": "SerialPort.hpp",
+              "ToolTip": "D:\\Projects\\laughing-doodle\\Program cpp\\SerialPort.hpp",
+              "RelativeToolTip": "SerialPort.hpp",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-05-08T20:59:36.987Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "SerialPort.cpp",
+              "DocumentMoniker": "D:\\Projects\\laughing-doodle\\Program cpp\\SerialPort.cpp",
+              "RelativeDocumentMoniker": "SerialPort.cpp",
+              "ToolTip": "D:\\Projects\\laughing-doodle\\Program cpp\\SerialPort.cpp",
+              "RelativeToolTip": "SerialPort.cpp",
+              "ViewState": "AQIAABUAAAAAAAAAAAAAADAAAAAnAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-05-08T20:58:56.506Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "main.cpp",
+              "DocumentMoniker": "D:\\Projects\\laughing-doodle\\Program cpp\\main.cpp",
+              "RelativeDocumentMoniker": "main.cpp",
+              "ToolTip": "D:\\Projects\\laughing-doodle\\Program cpp\\main.cpp",
+              "RelativeToolTip": "main.cpp",
+              "ViewState": "AQIAACoAAAAAAAAAAAAAAAgAAAApAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-05-08T20:52:23.868Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

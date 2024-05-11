@@ -22,7 +22,7 @@ typedef struct
 {
 	uint8_t start;		  // 1 byte - const 0x55
 	uint8_t sonicData[4]; // 4 bytes - Sonic sensor data (float)
-	uint8_t photoData[4]; // 2 bytes - Photo cell data (int)
+	uint8_t photoData[4]; // 4 bytes - Photo cell data (int)
 	uint8_t cs;			  // 1 byte - Check sum error handling
 	uint8_t end;		  // 1 byte - const 0xAA
 } Message;
@@ -64,9 +64,7 @@ bool sendUARTMessage(Message *msg);
 void convertToMessage(float fSonicData, int iPhotoData, Message *buffer);
 bool decodeMessage(Message *buffer, float *fSonicData, int *iPhotoData);
 uint8_t calculateCheckSum(Message *msg);
-
 void handleLEDs();
-
 void initLCD();
 void writeLCD();
 

@@ -19,6 +19,10 @@
         -   [UART](#uart)
     -   [Könyvtárak](#könyvtárak)
 -   [Program](#program)
+    -   [Python](#python)
+        -   [Könyvtárak](#könyvtárak-1)
+    -   [C++](#c)
+        -   [Könyvtárak](#könyvtárak-2)
 
 # Kapcsolási rajz
 
@@ -153,3 +157,36 @@ Ezek segítségével a nyers adatokat át tudom konvertálni a Message struct bu
 [martinvichnal/AntiDelay](https://github.com/martinvichnal/AntiDelay)
 
 # Program
+
+A program megvalósítása 2 féle programozási környezetben lett megvalósítva. A C++ alkalmazásban a felhasználó csak a terminálon keresztül tudja venni az Arduinótól jövő adatokat amit kiír nyers adatként és feldolgozott Sonic és Photo adatként.
+
+A python alkalmazás nem csak fogadja hanem ki is rajzolja (plotolja) a képernyőre.
+
+## Python
+
+Az adatok fogadása a `def reciveData(ser):` függvény felelős ami bytonként olvassa, majd a `struct` könyvtár segítségével megfelelő típusra konvertálja őket. A függvény visszatérési értékei a `return sonicData, photoData`. A program megvárja míg a start bit (0x55) megérkezik, majd csak akkor kerül az adatok további feldolgozásra.
+
+Az értékek kirajzolása `update_sonic_plot` és `update_photo_plot` függvényeken keresztül történnek meg, amit itt hívunk meg:
+
+```Python
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 6))
+ani1 = FuncAnimation(fig, update_sonic_plot, interval=20)
+# ani2 = FuncAnimation(fig, update_photo_plot, interval=20)
+plt.show()
+```
+
+Sajnos ismeretlen okok miatt egyszerre a kettő érték kirajzolása nem megvalósítható mivel a program nagyon belassul ilyenkor, ezért csak az egyiket lehet futtatni, a másikat ki kell kommentezni.
+
+### Könyvtárak
+
+Az alaklamazásban két könyvtárat használtam. Ami az UART kommunikációért felelős: `pip install pyserial` és ami az értékek kirajzolásáért: `pip install matplotlib`
+
+## C++
+
+A C++-os megvalósításban segítségűl `manshmandal` SerialPort nevű könyvtárát vettem igénybe. A funkciók és kódrészek nagy része átvehető volt az Arduino Firmware kódrészéből ezért a gyakorlati működése megegyezik az Arduinoéval.
+
+A kódban csak akkor történik `bufferbe` adatok írása amikor a start bit (0x55) megérkezik, valamint hiba esetén (azaz a check sumok nem egyeznek meg) a `parseMessage` funkció 1-et küld vissza.
+
+### Könyvtárak
+
+[manashmandal/SerialPort](https://github.com/manashmandal/SerialPort/tree/master)
