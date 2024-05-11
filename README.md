@@ -23,10 +23,11 @@
         -   [Könyvtárak](#könyvtárak-1)
     -   [C++](#c)
         -   [Könyvtárak](#könyvtárak-2)
+-   [Gyakorlati megvalósítás](#gyakorlati-megvalósítás)
 
 # Kapcsolási rajz
 
-A kapcsolási rajzot a KiCad 8.0.2 programmal hoztam létre. Középpontjában egy Arduino Nano Socket áll.
+A kapcsolási rajzot a KiCad 8.0.2 programmal hoztam létre. Középpontjában egy `Arduino Nano` Socket áll.
 
 A kapcsolási rajzon a J1-es jellel ellátott foglalaton kivezettem az Arduino UART lábait ezzel könnyedén debuggerelni lehet a kommunikációs rését a rendszernek.
 
@@ -46,11 +47,11 @@ A kapcsolási rajzon a J1-es jellel ellátott foglalaton kivezettem az Arduino U
 
 ## I2C
 
-2 darab egységünk van a kapcsoláson ami I2C-vel kommunikál. A J4 és J5 foglalatba tudjuk ezeket az LCD-ket bekötni.
+2 darab egységünk van a kapcsoláson, ami I2C-vel kommunikál. A J4 és J5 foglalatba tudjuk ezeket az LCD-ket bekötni.
 
-Felhúzó ellenállások (R1, R2) is megtalálhatóak az SDA és SCL lábakon mivel az I2C protokoll egy Open-Drain összeköttetésen alapúl.
+Felhúzó ellenállások (R1, R2) is megtalálhatóak az SDA és SCL lábakon, mivel az I2C protokoll egy Open-Drain buszrendszeren alapúl.
 
-A rendszeren belül 2 I2C cím jelenik meg, ezek a _0x70_ és _0x7E_ címek. Ezeket a címeket fizikailag be lehet állítani a PCF8574A GPIO extender IC segítségével mivel ezen keresztűl kommunikálunk az LCD kijelzőkkel.
+A rendszeren belül 2 I2C cím jelenik meg, ezek a _0x70_ és _0x7E_ címek. Ezeket a címeket fizikailag be lehet állítani a PCF8574A GPIO extender IC segítségével, mivel ezen keresztűl kommunikálunk az LCD kijelzőkkel.
 
 ```
 A2 A1 A0 | READ WRITE
@@ -59,15 +60,15 @@ J4: L L L | 0x71 0x70
 J5: H H H | 0x7F 0x7E
 ```
 
-A2-A0 ig ellátott jelölések fizikai réz lapokat jelölnek amikkel be lehet állítani hogy az adott IC-nek milyen fizikai I2C címe legyen. Én esetemben kettőt válaszottam ahol mind a 3 pad nincs összekötve és ahol mind a 3 pad össze van kötve.
+A2-A0 ig ellátott jelölések fizikai réz lapokat jelölnek amikkel be lehet állítani, hogy az adott IC-nek milyen fizikai I2C címe legyen. Én esetemben kettőt válaszottam, ahol mind a 3 pad nincs összekötve és ahol mind a 3 pad össze van kötve.
 
 # Firmware
 
 ## Működése
 
-A program 500ms-ként lekérdezi az összes szenzorról a kívánt adatokat majd feldolgozza az adatokat és elküldi az üzenetet az UART-on keresztűl. Eközben az LCD-re a kiírás is megtörténik a `writeLCD()` függvény segítségével.
+A program 500ms-ként lekérdezi az összes szenzorról a kívánt adatokat, majd feldolgozza, és elküldi az üzenetet UART-on keresztűl. Eközben az LCD-re való kiírás is megtörténik a `writeLCD()` függvény segítségével.
 
-A program folyamatosan frissíti a LED-ek állapotát amit a `handleLEDs()` függvény kezel. Ebben a függvényben szimplán komparálja a távolságot az előre definiált konstans változókkal `ledUpperLimit`, `ledBottomLimit`.
+A program folyamatosan frissíti a LED-ek állapotát, amit a `handleLEDs()` függvény kezel. Ebben a függvényben szimplán komparálja a távolságot az előre definiált konstans változókkal `ledUpperLimit`, `ledBottomLimit`.
 A programban az 500ms-kénti lekérdezést úgy váltottam valóra, hogy a saját könyvtáramat hozzáadtam a programhoz. Ez akönyvtár az `AntiDelay`, amivel _NON-BLOCKING_ delay-eket hozhatunk létre.
 
 ```C++
@@ -76,17 +77,21 @@ AntiDelay sensorReadings(500);
 
 Ezt az értéket a késöbbiekben könnyedén megváltoztathatjuk a `void setInterval(unsigned long interval)` belső függvény segítségével.
 
-A program futtatása során lehetőség van belső debuggerelésre ami szimplán kiírja a soros portra az értékeket amiket a szenzorról olvas le. Ezt a funkciót `#define DEBUG 1/0`-val lehet ki és bekapcsolni. Az üzenetek kiküldése ugyan azon a porton keresztül történik meg amelyiken a Message adatcsomagot kiküldjük ezért érdemes kikapcsolva hagyni.
+A program futtatása során lehetőség van belső debuggerelésre, ami szimplán kiírja a soros portra az értékeket, amiket a szenzorról olvas le. Ezt a funkciót `#define DEBUG 1/0`-val lehet ki és bekapcsolni. Az üzenetek kiküldése ugyan azon a porton keresztül történik meg amelyiken a Message adatcsomagot kiküldjük ezért érdemes kikapcsolva hagyni.
 
 ### Változók
 
 ## Fényérzékelő
 
-Mivel a fényérzékelő egy analóg GPIO-pinre megy rá (A0) ezért könnyedén lekérdezhetjük az ADC értékét a beépített Arduino könyvtár
+Mivel a fényérzékelő egy analóg GPIO-pinre (A0) megy rá, ezért könnyedén lekérdezhetjük az ADC értékét a beépített Arduino könyvtár segítségével.
+
+```C++
+photoCellValue = analogRead(PHOTOCELL);
+```
 
 ## Ultrahangos érzékelő
 
-Az ultrahangos érzékelőnek csináltam egy Classt ezzel a kódot letisztultabbá és rendszerezhetőbbé tettem. A classon belül 1 függvény van ami szimplán megadja, hogy egy objektum milyen messze van amit egy float típusú változóként küld vissza. 2 belső változója van ami szimplán eltározza a GPIO lábak értékét.
+Az ultrahangos érzékelőnek csináltam egy class-t, ezzel a kódot letisztultabbá és rendszerezhetőbbé tettem. A classon belül 1 függvény van, ami szimplán megadja, hogy egy objektum milyen messze van, amit egy float típusú változóként küld vissza. 2 belső változója van, ami szimplán eltározza a GPIO lábak értékét.
 
 ### Class használata
 
@@ -112,13 +117,13 @@ Adatok kiírása a void `writeLCD()` függvény segítségével történik meg.
 
 ### I2C
 
-Az I2C kommunikációs protokollt a két 1604-es LCD kijelző futtatására használom. A kommunikáció leegyszerűsítése kedvéért LiquidCrystal_I2C könyvtárat használtam.
+Az I2C kommunikációs protokollt a két 1604-es LCD kijelző futtatására használom. A kommunikáció leegyszerűsítése kedvéért `LiquidCrystal_I2C` könyvtárat használtam.
 
 ### UART
 
-A kommunikáció a PC-n lévő porgram és az Arduino között aszinkron adó-vevő protokollon (UART) keresztűl jut 1 bájtos adatcsomagokkal továbbításra.
+A kommunikáció a PC-n lévő porgram és az Arduino között aszinkron adó-vevő (UART) protokollon keresztűl jut 1 bájtos adatcsomagokkal továbbításra.
 
-Üzenetkeret:
+Az üzenetkeret:
 
 ```C++
 typedef struct
@@ -148,7 +153,7 @@ bool decodeMessage(Message *buffer, float *fSonicData, int *iPhotoData);
 uint8_t calculateCheckSum(Message *msg);
 ```
 
-Ezek segítségével a nyers adatokat át tudom konvertálni a Message struct bufferba és fordítva. A sendUARTMessage függvény segítségével lehet kiküldeni az adattömböt az UARTra. Egy biztonsági réteget is beleiktattam az adatcsomagba ami egy egyszerű check sum funkció, ezzel ki lehet kerülni az esetlegesen megroncsolt adatok feldolgozását.
+Ezek segítségével a nyers adatokat át tudom konvertálni a Message struct bufferba, és fordítva. A sendUARTMessage függvény segítségével lehet kiküldeni az adattömböt az UART-ra. Egy biztonsági réteget is beleiktattam az adatcsomagba, ami egy egyszerű check sum funkció, ezzel ki lehet kerülni az esetlegesen megroncsolt adatok feldolgozását.
 
 ## Könyvtárak
 
@@ -158,7 +163,7 @@ Ezek segítségével a nyers adatokat át tudom konvertálni a Message struct bu
 
 # Program
 
-A program megvalósítása 2 féle programozási környezetben lett megvalósítva. A C++ alkalmazásban a felhasználó csak a terminálon keresztül tudja venni az Arduinótól jövő adatokat amit kiír nyers adatként és feldolgozott Sonic és Photo adatként.
+A program megvalósítása 2 féle programozási környezetben lett megvalósítva. A C++ alkalmazásban a felhasználó csak a terminálon keresztül tudja venni az Arduinótól jövő adatokat, amit kiír nyers adatként és feldolgozott Sonic és Photo adatként.
 
 A python alkalmazás nem csak fogadja hanem ki is rajzolja (plotolja) a képernyőre.
 
@@ -175,11 +180,11 @@ ani1 = FuncAnimation(fig, update_sonic_plot, interval=20)
 plt.show()
 ```
 
-Sajnos ismeretlen okok miatt egyszerre a kettő érték kirajzolása nem megvalósítható mivel a program nagyon belassul ilyenkor, ezért csak az egyiket lehet futtatni, a másikat ki kell kommentezni.
+Sajnos ismeretlen okok miatt egyszerre a kettő érték kirajzolása nem megvalósítható, mivel a program nagyon belassul ilyenkor, ezért csak az egyiket lehet futtatni, a másikat ki kell kommentezni.
 
 ### Könyvtárak
 
-Az alaklamazásban két könyvtárat használtam. Ami az UART kommunikációért felelős: `pip install pyserial` és ami az értékek kirajzolásáért: `pip install matplotlib`
+Az alaklamazásban két könyvtárat használtam. Az UART kommunikációért felelős: `pip install pyserial` és az értékek kirajzolásáért: `pip install matplotlib`
 
 ## C++
 
@@ -190,3 +195,7 @@ A kódban csak akkor történik `bufferbe` adatok írása amikor a start bit (0x
 ### Könyvtárak
 
 [manashmandal/SerialPort](https://github.com/manashmandal/SerialPort/tree/master)
+
+# Gyakorlati megvalósítás
+
+A gyakorlatban is megépítettem a rendszert, ugyan azokkal a szenzor elemekkel, amik a feltételek között is szerepeltek. A rendszer minden elemét teszteltem, kivéve az LCD kijelzőt, mivel erre sajnos nem volt megfelelő elemem.
