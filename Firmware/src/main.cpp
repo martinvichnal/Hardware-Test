@@ -35,6 +35,13 @@ private:
 	int _echoPin;
 
 public:
+	/**
+	 * @brief Constructor
+	 * @note Sets pinMode for trigger and echo pins
+	 *
+	 * @param trigPin
+	 * @param echoPin
+	 */
 	Sonic(int trigPin, int echoPin)
 	{
 		_trigPin = trigPin;
@@ -43,6 +50,11 @@ public:
 		pinMode(_echoPin, INPUT);
 	}
 
+	/**
+	 * @brief Get distance from ultrasonic sensor
+	 *
+	 * @return float
+	 */
 	float getDistance()
 	{
 		float res = 0;
@@ -60,6 +72,7 @@ public:
 };
 
 // Fucntions declarations
+
 bool sendUARTMessage(Message *msg);
 void convertToMessage(float fSonicData, int iPhotoData, Message *buffer);
 bool decodeMessage(Message *buffer, float *fSonicData, int *iPhotoData);
@@ -127,6 +140,13 @@ void loop()
 
 ///////////////////////////////////////////////////////////////////////
 // Functions
+
+/**
+ * @brief Send message over UART
+ *
+ * @param Message*
+ * @return true
+ */
 bool sendUARTMessage(Message *msg)
 {
 	uint8_t *msgPtr = (uint8_t *)msg;
@@ -140,6 +160,13 @@ bool sendUARTMessage(Message *msg)
 	return true;
 }
 
+/**
+ * @brief Convert data to message
+ *
+ * @param float fSonicData
+ * @param int iPhotoData
+ * @param Message* buffer
+ */
 void convertToMessage(float fSonicData, int iPhotoData, Message *buffer)
 {
 	buffer->start = 0x55;
@@ -149,6 +176,14 @@ void convertToMessage(float fSonicData, int iPhotoData, Message *buffer)
 	buffer->end = 0xAA;
 }
 
+/**
+ * @brief Decode message into sonic and photo data address
+ *
+ * @param Message* buffer
+ * @param float* fSonicData
+ * @param int* iPhotoData
+ * @return bool - 1 if check sum error, 0 if no error
+ */
 bool decodeMessage(Message *buffer, float *fSonicData, int *iPhotoData)
 {
 	*fSonicData = *(float *)buffer->sonicData;
@@ -166,6 +201,12 @@ bool decodeMessage(Message *buffer, float *fSonicData, int *iPhotoData)
 	return 0;
 }
 
+/**
+ * @brief Calculate check sum
+ *
+ * @param Message*
+ * @return uint8_t
+ */
 uint8_t calculateCheckSum(Message *msg)
 {
 	uint8_t checkSum = 0;
@@ -180,6 +221,10 @@ uint8_t calculateCheckSum(Message *msg)
 	return res;
 }
 
+/**
+ * @brief Handle LEDs
+ *
+ */
 void handleLEDs()
 {
 	if (sonicDistance < ledBottomLimit)
@@ -208,6 +253,10 @@ void handleLEDs()
 	}
 }
 
+/**
+ * @brief Initialize LCD
+ *
+ */
 void initLCD()
 {
 	lcd1.init();		  // Initialize the LCD
@@ -221,6 +270,10 @@ void initLCD()
 	lcd2.setCursor(0, 0); // Set cursor to the begining
 }
 
+/**
+ * @brief Write to LCD
+ *
+ */
 void writeLCD()
 {
 	lcd1.clear();

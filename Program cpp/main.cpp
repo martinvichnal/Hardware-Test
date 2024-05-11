@@ -29,24 +29,27 @@ char incomingData[MAX_DATA_LENGTH];
 float fSonicData = 0.0;
 int iPhotoData = 0;
 
-
 int main()
 {
 	arduino = new SerialPort(portName);
 
-	while (1) {
+	while (1)
+	{
 		// ui - searching
 		std::cout << "Searching in progress";
 		// wait connection
-		while (!arduino->isConnected()) {
+		while (!arduino->isConnected())
+		{
 			Sleep(100);
 			std::cout << ".";
 			arduino = new SerialPort(portName);
 		}
 
-		//Checking if arduino is connected or not
-		if (arduino->isConnected()) {
-			std::cout << std::endl << "Connection established at port " << portName << std::endl;
+		// Checking if arduino is connected or not
+		if (arduino->isConnected())
+		{
+			std::cout << std::endl
+				<< "Connection established at port " << portName << std::endl;
 		}
 
 		while (arduino->isConnected())
@@ -75,6 +78,13 @@ void handleIncommingData(void)
 	Sleep(10);
 }
 
+/**
+ * @brief Convert data to message
+ *
+ * @param float fSonicData
+ * @param int iPhotoData
+ * @param Message* buffer
+ */
 void convertToMessage(float fSonicData, int iPhotoData, Message* buffer)
 {
 	buffer->start = 0x55;
@@ -84,12 +94,26 @@ void convertToMessage(float fSonicData, int iPhotoData, Message* buffer)
 	buffer->end = 0xAA;
 }
 
+/**
+ * @brief Decode message into sonic and photo data address
+ *
+ * @param Message* buffer
+ * @param float* fSonicData
+ * @param int* iPhotoData
+ */
 void decodeMessage(Message* buffer, float* fSonicData, int* iPhotoData)
 {
 	*fSonicData = *(float*)buffer->sonicData;
 	*iPhotoData = *(int*)buffer->photoData;
 }
 
+/**
+ * @brief Parse message
+ *
+ * @param char* input
+ * @param Message* buffer
+ * @return bool - 1 if check sum error, 0 if no error
+ */
 bool parseMessage(const char* input, Message* buffer)
 {
 	Message tmp;
@@ -113,6 +137,12 @@ bool parseMessage(const char* input, Message* buffer)
 	return 1;
 }
 
+/**
+ * @brief Calculate check sum
+ *
+ * @param Message*
+ * @return uint8_t
+ */
 uint8_t calculateCheckSum(Message* msg)
 {
 	uint8_t checkSum = 0;
