@@ -1,6 +1,0 @@
-﻿  main.cpp
-D:\Projects\laughing-doodle\Program cpp\main.cpp(25,1): warning C4005: 'MAX_DATA_LENGTH': macro redefinition
-  D:\Projects\laughing-doodle\Program cpp\SerialPort.hpp(4,1):
-  see previous definition of 'MAX_DATA_LENGTH'
-  
-  Program.vcxproj -> D:\Projects\laughing-doodle\Program cpp\x64\Debug\Program.exe
