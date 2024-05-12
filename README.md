@@ -146,6 +146,8 @@ Az üzenetkeretet a programokon belül egy struct-ban tárolom, tartalma a köve
 -   `end`: 1 bájt előre definiált konstans 0xAA érték ezzel jelezve a csomag végét
 
 ![UART Logic Analysator](/Docs/UART%20data%20transfer.png)
+(A fájl megtalálható: Docs/UART data transfer.sal és megnyitható a [Saleae Logic 2.4.14](https://discuss.saleae.com/t/logic-2-4-14/2746)-es programmal)
+
 
 Az UART kommunikációhoz fűződve 4 belső függvényt csináltam.
 
