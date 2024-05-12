@@ -6,10 +6,10 @@
 class SerialHandler
 {
 public:
-	SerialHandler(const char* portName);
+	SerialHandler();
 	~SerialHandler();
 
-	int begin();
+	int begin(const char* portName);
 	void close();
 
 	int read(const char* buffer, unsigned int bufferSize);
@@ -18,8 +18,8 @@ public:
 	bool isConnected();
 
 private:
-	const char* _portName;
-	bool _connected;
+	const char* _portName = "";
+	bool _connected = false;
 	HANDLE _serialHandler;
 	COMSTAT _status;
 	DWORD _dwByte;

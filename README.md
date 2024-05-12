@@ -19,6 +19,8 @@
     -   [Python](#python)
         -   [Könyvtárak](#könyvtárak-1)
     -   [C++](#c)
+        -   [Portkezelés](#portkezelés)
+            -   [API](#api)
         -   [Könyvtárak](#könyvtárak-2)
 -   [Gyakorlati megvalósítás](#gyakorlati-megvalósítás)
 
@@ -193,15 +195,36 @@ Az alaklamazásban két könyvtárat használtam. Az UART kommunikációért fel
 
 ## C++
 
-A C++-os megvalósításban
+A C++-os megvalósításban mind terminálra való kiíratás és grafikus módon is ki kerül iratásra az adatok. Mivel a két megvalósítás (csak terminálra való kiíratés és a grafikus módon való kiíratás) teljesen más struktúrát igényelt ezért, ezért két mappa található meg a projektben: `Program cpp v1` (csak terminál) és a `Program cpp v2` (terminál és grafikus). Az alap funkciók, tehát a portkezelés teljesen megegyezik, csak a `v2` projektben egy `Draw` classba gyűjtöttem minden egyes olcPixelGameEngine-hez szükséges funkciókat. Mivel a Draw classon belül használom a portkezelést, ezért azok is átkerültek oda mint belső (privát) függvények.
 
 A funkciók és kódrészek nagy része átvehető volt az Arduino Firmware kódrészéből ezért a gyakorlati működése megegyezik az Arduinoéval.
-
 A kódban csak akkor történik `bufferbe` adatok írása amikor a start bit (0x55) megérkezik, valamint hiba esetén (azaz a check sumok nem egyeznek meg) a `parseMessage` funkció 1-et küld vissza.
 
 ![Kiíratás terminálra](/Docs/Kiíratás%20terminálra.png)
 
+![Grafikus megjelenítés](/Docs/Cpp%20grafikus.png)
+
+### Portkezelés
+
+Portkezelésre írtam egy külön könyvtárat, ahol a `windows.h` beépített könyvtár tulajdonságait használom fel.
+
+#### API
+
+A portkezelés API formája nagyon megegyező az Arduinoóéhoz ezért könnyedén lehet használni.
+
+```C++
+int begin(const char* portName);
+void close();
+int read(const char* buffer, unsigned int bufferSize);
+bool write(const char* buffer, unsigned int bufferSize);
+bool isConnected();
+```
+
+Ezek a függvények dokumentációja, értelmezése megtalálható a projekten belüli `SerialHandler.cpp` fájlban.
+
 ### Könyvtárak
+
+Grafikus megjelenítésért felelős könyvtár: [OneLoneCoder/olcPixelGameEngine](https://github.com/OneLoneCoder/olcPixelGameEngine)
 
 # Gyakorlati megvalósítás
 

@@ -1,7 +1,12 @@
+#define OLC_PGE_APPLICATION
+
 #include <iostream>
-#include "SerialHandler.h"
 #include <stdio.h>
 #include <string.h>
+#include <vector>
+#include <cmath>
+#include "olcPixelGameEngine.h"
+#include "SerialHandler.h"
 using namespace std;
 
 // Message structure
@@ -22,7 +27,6 @@ bool parseMessage(const char* input, Message* buffer);
 uint8_t calculateCheckSum(Message* msg);
 
 // Class declarations
-// SerialPort* arduino;
 Message buffer;
 
 // Global variables
@@ -33,29 +37,27 @@ char incomingData[DATA_FRAME_SIZE];
 float fSonicData = 0.0;
 int iPhotoData = 0;
 
-/*
-						 /$$
+/*						 /$$
 						|__/
  /$$$$$$/$$$$   /$$$$$$  /$$ /$$$$$$$
 | $$_  $$_  $$ |____  $$| $$| $$__  $$
 | $$ \ $$ \ $$  /$$$$$$$| $$| $$  \ $$
 | $$ | $$ | $$ /$$__  $$| $$| $$  | $$
 | $$ | $$ | $$|  $$$$$$$| $$| $$  | $$
-|__/ |__/ |__/ \_______/|__/|__/  |__/
-*/
+|__/ |__/ |__/ \_______/|__/|__/  |__/*/
 int main()
 {
-	SerialHandler port(portName);
+	SerialHandler port;
 
 	std::cout << "[ port INFO ]: Starting a new port on: " << portName << std::endl;
-	port.begin();	// Starting connection on port
+	port.begin(portName);	// Starting connection on port
 
 	// Wait for connection
 	while (port.isConnected() == false)
 	{
 		std::cout << "[ port ERR ]: Connection failed!" << std::endl;
 		Sleep(1000);
-		port.begin();
+		port.begin(portName);
 	}
 
 	std::cout << "[ port OK ]: Connection established at port " << portName << std::endl;
@@ -70,16 +72,14 @@ int main()
 	port.close(); // Closing connection on port
 }
 
-/*
-  /$$$$$$                                 /$$     /$$
+/*/$$$$$$                                 /$$     /$$
  /$$__  $$                               | $$    |__/
 | $$  \__//$$   /$$ /$$$$$$$   /$$$$$$$ /$$$$$$   /$$  /$$$$$$  /$$$$$$$   /$$$$$$$
 | $$$$   | $$  | $$| $$__  $$ /$$_____/|_  $$_/  | $$ /$$__  $$| $$__  $$ /$$_____/
 | $$_/   | $$  | $$| $$  \ $$| $$        | $$    | $$| $$  \ $$| $$  \ $$|  $$$$$$
 | $$     | $$  | $$| $$  | $$| $$        | $$ /$$| $$| $$  | $$| $$  | $$ \____  $$
 | $$     |  $$$$$$/| $$  | $$|  $$$$$$$  |  $$$$/| $$|  $$$$$$/| $$  | $$ /$$$$$$$/
-|__/      \______/ |__/  |__/ \_______/   \___/  |__/ \______/ |__/  |__/|_______/
-*/
+|__/      \______/ |__/  |__/ \_______/   \___/  |__/ \______/ |__/  |__/|_______/*/
 //==================================================================================================
 void handleIncommingData(void)
 {
@@ -90,7 +90,7 @@ void handleIncommingData(void)
 	{
 		for (int i = 0; i < sizeof(Message); i++)
 		{
-			printf("%02x", ((uint8_t*)&buffer)[i]);
+			printf("0x%02x ", ((uint8_t*)&buffer)[i]);
 		}
 		std::cout << std::endl;
 		decodeMessage(&buffer, &fSonicData, &iPhotoData);

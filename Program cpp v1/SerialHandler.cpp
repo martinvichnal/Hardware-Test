@@ -3,11 +3,10 @@
 /**
  * @brief Construct a new serial handler object
  *
- * @param portName
  */
-SerialHandler::SerialHandler(const char* portName)
+SerialHandler::SerialHandler()
 {
-	_portName = portName;
+	_connected = false;
 }
 
 /**
@@ -33,6 +32,8 @@ SerialHandler::~SerialHandler()
  * - Stop bits: 1
  * - Parity: None
  *
+ * @param portName
+ * 
  * @return	1 - Connection established
  * @return -1 - Serial port not available
  * @return -2 - Could not connect to serial port
@@ -40,8 +41,9 @@ SerialHandler::~SerialHandler()
  * @return -4 - Could not set serial port parameters
  * @return -5 - Could not set timeouts
  */
-int SerialHandler::begin()
+int SerialHandler::begin(const char* portName)
 {
+	_portName = portName;
 	_connected = false;
 
 	_serialHandler = CreateFileA(static_cast<LPCSTR>(_portName), GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING,
