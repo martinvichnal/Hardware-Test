@@ -18,10 +18,10 @@ public:
 	bool isConnected();
 
 private:
-	const char* _portName = "";
-	bool _connected = false;
-	HANDLE _serialHandler;
-	COMSTAT _status;
-	DWORD _dwByte;
+	const char* m_portName = "";
+	bool m_connected = false;
+	HANDLE m_serialHandler;
+	COMSTAT m_status;
+	DWORD m_dwByte;
 };
 

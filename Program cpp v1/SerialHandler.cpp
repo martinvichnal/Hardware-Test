@@ -6,7 +6,7 @@
  */
 SerialHandler::SerialHandler()
 {
-	_connected = false;
+	this->m_connected = false;
 }
 
 /**
@@ -15,10 +15,10 @@ SerialHandler::SerialHandler()
  */
 SerialHandler::~SerialHandler()
 {
-	if (_connected)
+	if (this->m_connected)
 	{
-		_connected = false;
-		CloseHandle(_serialHandler);
+		this->m_connected = false;
+		CloseHandle(this->m_serialHandler);
 	}
 }
 
@@ -43,18 +43,18 @@ SerialHandler::~SerialHandler()
  */
 int SerialHandler::begin(const char* portName)
 {
-	_portName = portName;
-	_connected = false;
+	this->m_portName = portName;
+	this->m_connected = false;
 
-	_serialHandler = CreateFileA(static_cast<LPCSTR>(_portName), GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING,
+	this->m_serialHandler = CreateFileA(static_cast<LPCSTR>(this->m_portName), GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING,
 		FILE_ATTRIBUTE_NORMAL, 0);
 
 	// Checking if the serial port was opened successfully
-	if (_serialHandler == INVALID_HANDLE_VALUE)
+	if (this->m_serialHandler == INVALID_HANDLE_VALUE)
 	{
 		if (GetLastError() == ERROR_FILE_NOT_FOUND)
 		{
-			std::cerr << "[ Serial ERR ]: " << _portName << " not available\n";
+			std::cerr << "[ Serial ERR ]: " << this->m_portName << " not available\n";
 			return -1;
 		}
 		std::cerr << "[ Serial ERR ]: could not connect to serial port\n";
@@ -65,7 +65,7 @@ int SerialHandler::begin(const char* portName)
 	DCB serialParam = { 0 };
 	serialParam.DCBlength = sizeof(serialParam);
 
-	if (!GetCommState(_serialHandler, &serialParam))
+	if (!GetCommState(this->m_serialHandler, &serialParam))
 	{
 		std::cerr << "[ Serial ERR ]: could not get serial port parameters\n";
 		return -3;
@@ -77,7 +77,7 @@ int SerialHandler::begin(const char* portName)
 	serialParam.StopBits = ONESTOPBIT;
 	serialParam.Parity = NOPARITY;
 
-	if (!SetCommState(_serialHandler, &serialParam))
+	if (!SetCommState(this->m_serialHandler, &serialParam))
 	{
 		std::cout << "[ Serial ERR ]: could not set serial port parameters\n";
 		return -4;
@@ -91,16 +91,16 @@ int SerialHandler::begin(const char* portName)
 	timeout.WriteTotalTimeoutConstant = 60;
 	timeout.WriteTotalTimeoutMultiplier = 8;
 
-	if (!SetCommTimeouts(_serialHandler, &timeout))
+	if (!SetCommTimeouts(this->m_serialHandler, &timeout))
 	{
 		std::cerr << "[ Serial ERR ]: could not set timeouts\n";
 		return -5;
 	}
 
 	// The port has been successfully opened
-	this->_connected = true;
-	std::cout << "[ Serial OK ]: Connection established at port " << _portName << "\n"<< std::endl;
-	PurgeComm(_serialHandler, PURGE_RXCLEAR | PURGE_TXCLEAR);
+	this->m_connected = true;
+	std::cout << "[ Serial OK ]: Connection established at port " << this->m_portName << "\n"<< std::endl;
+	PurgeComm(this->m_serialHandler, PURGE_RXCLEAR | PURGE_TXCLEAR);
 	Sleep(2000);
 	return 1;
 }
@@ -110,8 +110,8 @@ int SerialHandler::begin(const char* portName)
  */
 void SerialHandler::close()
 {
-	_connected = false;
-	CloseHandle(_serialHandler);
+	this->m_connected = false;
+	CloseHandle(this->m_serialHandler);
 }
 
 /**
@@ -127,23 +127,23 @@ int SerialHandler::read(const char* buffer, unsigned int bufferSize)
 {
 	unsigned int readSize = 0;
 
-	ClearCommError(_serialHandler, &_dwByte, &_status);
+	ClearCommError(this->m_serialHandler, &this->m_dwByte, &this->m_status);
 
-	if (_status.cbInQue > 0)
+	if (this->m_status.cbInQue > 0)
 	{
-		if (_status.cbInQue > bufferSize)
+		if (this->m_status.cbInQue > bufferSize)
 		{
 			readSize = bufferSize;
 		}
 		else
 		{
-			readSize = _status.cbInQue;
+			readSize = this->m_status.cbInQue;
 		}
 	}
 
-	if (ReadFile(_serialHandler, (void*)buffer, readSize, &_dwByte, NULL))
+	if (ReadFile(this->m_serialHandler, (void*)buffer, readSize, &this->m_dwByte, NULL))
 	{
-		return _dwByte;
+		return this->m_dwByte;
 	}
 	return -1;
 }
@@ -159,7 +159,7 @@ int SerialHandler::read(const char* buffer, unsigned int bufferSize)
  */
 bool SerialHandler::write(const char* buffer, unsigned int bufferSize)
 {
-	if (!WriteFile(_serialHandler, buffer, bufferSize, &_dwByte, NULL))
+	if (!WriteFile(this->m_serialHandler, buffer, bufferSize, &this->m_dwByte, NULL))
 	{
 		std::cerr << "[Serial ERR]: could not write to serial port\n";
 		return -1;
@@ -174,5 +174,5 @@ bool SerialHandler::write(const char* buffer, unsigned int bufferSize)
  */
 bool SerialHandler::isConnected()
 {
-	return _connected;
+	return this->m_connected;
 }

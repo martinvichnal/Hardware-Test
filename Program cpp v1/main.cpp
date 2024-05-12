@@ -1,11 +1,8 @@
-#define OLC_PGE_APPLICATION
-
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
 #include <vector>
 #include <cmath>
-#include "olcPixelGameEngine.h"
 #include "SerialHandler.h"
 using namespace std;
 
@@ -62,7 +59,7 @@ int main()
 
 	std::cout << "[ port OK ]: Connection established at port " << portName << std::endl;
 
-	while (1)
+	while (true)
 	{
 		int readResult = port.read(incomingData, DATA_FRAME_SIZE); // Reading from port into incomingData
 		// The got packet is the right size
