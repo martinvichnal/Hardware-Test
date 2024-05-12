@@ -193,15 +193,15 @@ Az alaklamazásban két könyvtárat használtam. Az UART kommunikációért fel
 
 ## C++
 
-A C++-os megvalósításban segítségűl `manshmandal` SerialPort nevű könyvtárát vettem igénybe. A funkciók és kódrészek nagy része átvehető volt az Arduino Firmware kódrészéből ezért a gyakorlati működése megegyezik az Arduinoéval.
+A C++-os megvalósításban
+
+A funkciók és kódrészek nagy része átvehető volt az Arduino Firmware kódrészéből ezért a gyakorlati működése megegyezik az Arduinoéval.
 
 A kódban csak akkor történik `bufferbe` adatok írása amikor a start bit (0x55) megérkezik, valamint hiba esetén (azaz a check sumok nem egyeznek meg) a `parseMessage` funkció 1-et küld vissza.
 
 ![Kiíratás terminálra](/Docs/Kiíratás%20terminálra.png)
 
 ### Könyvtárak
-
-[manashmandal/SerialPort](https://github.com/manashmandal/SerialPort/tree/master)
 
 # Gyakorlati megvalósítás
 

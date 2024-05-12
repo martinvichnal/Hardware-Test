@@ -4,7 +4,6 @@
 #include <string.h>
 using namespace std;
 
-
 // Message structure
 typedef struct
 {
@@ -22,10 +21,9 @@ void decodeMessage(Message* buffer, float* fSonicData, int* iPhotoData);
 bool parseMessage(const char* input, Message* buffer);
 uint8_t calculateCheckSum(Message* msg);
 
-//Class declarations
-//SerialPort* arduino;
+// Class declarations
+// SerialPort* arduino;
 Message buffer;
-
 
 // Global variables
 #define DATA_FRAME_SIZE 11
@@ -34,7 +32,6 @@ const char* portName = "\\\\.\\COM15";
 char incomingData[DATA_FRAME_SIZE];
 float fSonicData = 0.0;
 int iPhotoData = 0;
-
 
 /*
 						 /$$
@@ -49,34 +46,28 @@ int iPhotoData = 0;
 int main()
 {
 	SerialHandler port(portName);
-	
 
-	//arduino = new SerialPort(portName);
+	std::cout << "[ port INFO ]: Starting a new port on: " << portName << std::endl;
+	port.begin();	// Starting connection on port
 
-	//while (1)
-	//{
-	//	// ui - searching
-	//	std::cout << "Searching in progress";
-	//	// wait connection
-	//	while (!arduino->isConnected())
-	//	{
-	//		Sleep(100);
-	//		std::cout << ".";
-	//		//arduino = new SerialPort(portName);
-	//	}
+	// Wait for connection
+	while (port.isConnected() == false)
+	{
+		std::cout << "[ port ERR ]: Connection failed!" << std::endl;
+		Sleep(1000);
+		port.begin();
+	}
 
-	//	// Checking if arduino is connected or not
-	//	if (arduino->isConnected())
-	//	{
-	//		std::cout << std::endl
-	//			<< "Connection established at port " << portName << std::endl;
-	//	}
+	std::cout << "[ port OK ]: Connection established at port " << portName << std::endl;
 
-	//	while (arduino->isConnected())
-	//	{
-	//		handleIncommingData();
-	//	}
-	//}
+	while (1)
+	{
+		int readResult = port.read(incomingData, DATA_FRAME_SIZE); // Reading from port into incomingData
+		// The got packet is the right size
+		if (readResult == DATA_FRAME_SIZE)	handleIncommingData();
+
+	}
+	port.close(); // Closing connection on port
 }
 
 /*
@@ -89,31 +80,32 @@ int main()
 | $$     |  $$$$$$/| $$  | $$|  $$$$$$$  |  $$$$/| $$|  $$$$$$/| $$  | $$ /$$$$$$$/
 |__/      \______/ |__/  |__/ \_______/   \___/  |__/ \______/ |__/  |__/|_______/
 */
+//==================================================================================================
 void handleIncommingData(void)
 {
-	//int readResult = arduino->readSerialPort(incomingData, MAX_DATA_LENGTH);
-	/*bool readIsSuccessfull = parseMessage(incomingData, &buffer);
-	if (readIsSuccessfull == 0)
+	bool parseResult = parseMessage(incomingData, &buffer); // Parsing incomming data into buffer
+
+	// Writing out the data from the buffer
+	if (parseResult == 0)
 	{
 		for (int i = 0; i < sizeof(Message); i++)
 		{
-			printf("%02X ", ((uint8_t*)&buffer)[i]);
+			printf("%02x", ((uint8_t*)&buffer)[i]);
 		}
 		std::cout << std::endl;
 		decodeMessage(&buffer, &fSonicData, &iPhotoData);
 		std::cout << "Sonic data: " << fSonicData << std::endl;
 		std::cout << "Photo data: " << iPhotoData << std::endl;
 	}
-
-	Sleep(10);*/
 }
+
 //==================================================================================================
 /**
- * @brief Convert data to message
+ * @brief Converts the given float and int data into a Message object.
  *
- * @param float fSonicData
- * @param int iPhotoData
- * @param Message* buffer
+ * @param fSonicData The float value representing sonic data.
+ * @param iPhotoData The int value representing photo data.
+ * @param buffer Pointer to the Message object to be populated.
  */
 void convertToMessage(float fSonicData, int iPhotoData, Message* buffer)
 {
@@ -126,11 +118,11 @@ void convertToMessage(float fSonicData, int iPhotoData, Message* buffer)
 
 //==================================================================================================
 /**
- * @brief Decode message into sonic and photo data address
+ * @brief Decodes the given Message object into float and int data.
  *
- * @param Message* buffer
- * @param float* fSonicData
- * @param int* iPhotoData
+ * @param buffer Pointer to the Message object to be decoded.
+ * @param fSonicData Pointer to the float variable to be populated.
+ * @param iPhotoData Pointer to the int variable to be populated.
  */
 void decodeMessage(Message* buffer, float* fSonicData, int* iPhotoData)
 {
@@ -140,11 +132,12 @@ void decodeMessage(Message* buffer, float* fSonicData, int* iPhotoData)
 
 //==================================================================================================
 /**
- * @brief Parse message
+ * @brief Parses the given input buffer into a Message object.
  *
- * @param char* input
- * @param Message* buffer
- * @return bool - 1 if check sum error, 0 if no error
+ * @param input The input buffer to be parsed.
+ * @param buffer Pointer to the Message object to be populated.
+ * @return true If the start byte is not correct.
+ * @return false If the start byte is correct.
  */
 bool parseMessage(const char* input, Message* buffer)
 {
@@ -171,10 +164,10 @@ bool parseMessage(const char* input, Message* buffer)
 
 //==================================================================================================
 /**
- * @brief Calculate check sum
+ * @brief Calculates the check sum of the given Message object.
  *
- * @param Message*
- * @return uint8_t
+ * @param msg Pointer to the Message object to calculate the check sum for.
+ * @return uint8_t The calculated check sum.
  */
 uint8_t calculateCheckSum(Message* msg)
 {

@@ -9,7 +9,7 @@ public:
 	SerialHandler(const char* portName);
 	~SerialHandler();
 
-	bool begin();
+	int begin();
 	void close();
 
 	int read(const char* buffer, unsigned int bufferSize);
